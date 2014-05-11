@@ -1,0 +1,6 @@
+README
+
+1. sudo service rpcbind start (if not already)
+2. mount -t nfs 192.168.0.144:/volume2/xunlei /home/pi/dmm_query/dest (if not already)
+3. cd /home/pi/dmm_query
+4. scrapy crawl DmmBatchQuery -a directory=/home/pi/dmm_query/dest

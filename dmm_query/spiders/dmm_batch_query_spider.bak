@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+from scrapy.spider import Spider
+from scrapy.selector import Selector
+from dmm_query.items import DmmQueryItem
+from dmm_query.spiders import DmmQuerySpiderBase
+from scrapy.http import Request
+import re
+
+class DmmBatchQuerySpider(DmmQuerySpiderBase):
+  name = "DmmBatchQuery"
+  allowed_domains = ["dmm.co.jp"]
+  start_url_template = "http://www.dmm.co.jp/search/=/searchstr=%s%%20%s/n1=FgRCTw9VBA4GAVhfWkIHWw__/n2=Aw1fVhQKX1ZRAlhMUlo5QQgBU1lR/"
+  start_urls = [
+    "http://www.dmm.co.jp/search/=/searchstr=rbd%20550/n1=FgRCTw9VBA4GAVhfWkIHWw__/n2=Aw1fVhQKX1ZRAlhMUlo5QQgBU1lR/"
+  ]
+
+  def __init__(self, listFilename, *args, **kwargs):
+    super(DmmBatchQuerySpider, self).__init__(*args, **kwargs)
+    listFile = open(listFilename, "rb")
+    if listFile:
+        self.start_urls = []
+        while 1:
+          line = listFile.readline()
+          if not line:
+            break
+          
+          m = re.search(r"((.*)-)?(([A-Za-z]+)([0-9]+))\.[A-Za-z0-9]*", line)
+          if m:
+            publisherId = m.groups[4].lower()
+            productId = m.groups[5]
+            url = self.start_url_template % (publisherId, productId)
+            self.start_urls.append(url)
+          
+        listFile.close()
+
